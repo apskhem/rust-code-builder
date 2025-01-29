@@ -1,3 +1,7 @@
+//! A simple code structure builder in Rust, designed to work in a `no_std` environment.
+//! It provides functionality to build, modify, and format structured code elements such as blocks,
+//! lines, and signatures dynamically.
+
 #![forbid(unsafe_code)]
 #![forbid(clippy::all)]
 #![no_std]
@@ -8,14 +12,19 @@ extern crate alloc;
 use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 
+/// Represents a structured space for managing code elements.
 #[derive(Debug)]
 pub struct CodeSpace {
+  /// The character used for indentation.
   pub indent_char: char,
+  /// The depth of indentation.
   pub indent_depth: usize,
+  /// A collection of code elements.
   codes: Vec<Code>,
 }
 
 impl CodeSpace {
+  /// Creates a new, empty `CodeSpace` with default settings.
   pub fn new() -> Self {
     Self {
       indent_char: ' ',
@@ -24,11 +33,13 @@ impl CodeSpace {
     }
   }
 
+  /// Inserts a new line of code.
   pub fn insert_line(mut self, content: impl ToString) -> Self {
     self.codes.push(Code::Line(content.to_string()));
     self
   }
 
+  /// Inserts a new line of code conditionally.
   pub fn insert_line_if(mut self, cond: bool, content: impl ToString) -> Self {
     if cond {
       self.codes.push(Code::Line(content.to_string()));
@@ -36,16 +47,19 @@ impl CodeSpace {
     self
   }
 
+  /// Inserts a new block of code.
   pub fn insert_block(mut self, content: Block) -> Self {
     self.codes.push(Code::Block(content));
     self
   }
 
+  /// Inserts a new empty line.
   pub fn insert_new_line(mut self) -> Self {
     self.codes.push(Code::EmptyLine);
     self
   }
 
+  /// Inserts multiple empty lines.
   pub fn insert_new_lines(mut self, count: usize) -> Self {
     for _ in 0..count {
       self.codes.push(Code::EmptyLine);
@@ -54,34 +68,45 @@ impl CodeSpace {
   }
 }
 
+/// Represents different kinds of code structures.
 #[derive(Debug)]
 pub enum Code {
+  /// Represents an empty line.
   EmptyLine,
+  /// Represents a line of code.
   Line(String),
+  /// Represents a block of code.
   Block(Block),
 }
 
+/// Represents a block of code, which may contain lines or nested blocks.
 #[derive(Debug, Default)]
 pub struct Block {
+  /// Optional signature defining the block.
   signature: Option<BlockSignature>,
+  /// Code elements contained in this block.
   codes: Vec<Code>,
 }
 
 impl Block {
+  /// Creates a new, empty `Block`.
   pub fn new() -> Self {
     Self { ..Default::default() }
   }
 
+  /// Sets the signature of the block.
   pub fn set_signature(mut self, signature: Option<BlockSignature>) -> Self {
     self.signature = signature;
     self
   }
 
+  /// Inserts a line of code into the block.
   pub fn insert_line(mut self, content: impl ToString) -> Self {
     self.codes.push(Code::Line(content.to_string()));
     self
   }
 
+  /// Inserts a line of code into the block conditionally.
   pub fn insert_line_if(mut self, cond: bool, content: impl ToString) -> Self {
     if cond {
       self.codes.push(Code::Line(content.to_string()));
@@ -89,16 +114,19 @@ impl Block {
     self
   }
 
+  /// Inserts a nested block within this block.
   pub fn insert_block(mut self, content: Block) -> Self {
     self.codes.push(Code::Block(content));
     self
   }
 
+  /// Inserts an empty line into the block.
   pub fn insert_new_line(mut self) -> Self {
     self.codes.push(Code::EmptyLine);
     self
   }
 
+  /// Inserts multiple empty lines into the block.
   pub fn insert_new_lines(mut self, count: usize) -> Self {
     for _ in 0..count {
       self.codes.push(Code::EmptyLine);
@@ -106,6 +134,7 @@ impl Block {
     self
   }
 
+  /// Formats the block into a string with the given indentation depth.
   fn to_string_with_indent(&self, depth: usize, indent: &str) -> String {
     let mut result = String::new();
     let current_indent = indent.repeat(depth);
@@ -141,6 +170,7 @@ impl Block {
   }
 }
 
+/// Represents different visibility levels for a signature.
 #[derive(Debug)]
 pub enum SignatureVisibility {
   Pub,
@@ -149,12 +179,15 @@ pub enum SignatureVisibility {
   PubSelf,
 }
 
+/// Represents different types of block signatures.
 #[derive(Debug)]
 pub enum BlockSignature {
+  /// A module declaration.
   Module {
     visibility: Option<SignatureVisibility>,
     name: String,
   },
+  /// A function declaration.
   Function {
     visibility: Option<SignatureVisibility>,
     is_async: bool,
@@ -164,6 +197,7 @@ pub enum BlockSignature {
     return_type: Option<String>,
     where_clauses: Vec<(String, String)>,
   },
+  /// A custom block signature.
   Custom(String),
 }
 
