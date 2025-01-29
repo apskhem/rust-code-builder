@@ -13,7 +13,7 @@ A simple crate for building and managing structured code elements dynamically. I
 Add `rust-code-builder` as a dependency in your `Cargo.toml`:
 ```toml
 [dependencies]
-rust_code_builder = "0.1.0"
+rust-code-builder = "0.1.0"
 ```
 
 ### Example
