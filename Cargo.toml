@@ -2,5 +2,19 @@
 name = "rust-code-builder"
 version = "0.1.0"
 edition = "2021"
+description = "A code builder used for Rust code generation."
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/apskhem/rust-code-builder"
+readme = "README.md"
+authors = ["Apisit Ritreungroj <cyber1.record@gmail.com>"]
+exclude = [
+  ".github/*",
+  "tests/*",
+  ".gitignore",
+  "rustfmt.toml"
+]
 
 [dependencies]
+
+[features]
+default = []
