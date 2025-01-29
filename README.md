@@ -18,7 +18,7 @@ rust_code_builder = "0.1.0"
 
 ### Example
 ```rust
-use codespace::{CodeSpace, Block};
+use rust_code_builder::{CodeSpace, Block};
 
 let code = CodeSpace::new()
   .insert_line("let x = 42;")
