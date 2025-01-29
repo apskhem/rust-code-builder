@@ -17,7 +17,7 @@ use alloc::string::{
 use alloc::vec::Vec;
 
 /// Represents a structured space for managing code elements.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CodeSpace {
   /// The character used for indentation.
   pub indent_char: char,
@@ -73,7 +73,7 @@ impl CodeSpace {
 }
 
 /// Represents different kinds of code structures.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Code {
   /// Represents an empty line.
   EmptyLine,
@@ -84,7 +84,7 @@ pub enum Code {
 }
 
 /// Represents a block of code, which may contain lines or nested blocks.
-#[derive(Debug, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct Block {
   /// Optional signature defining the block.
   signature: Option<BlockSignature>,
@@ -175,7 +175,7 @@ impl Block {
 }
 
 /// Represents different visibility levels for a signature.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum SignatureVisibility {
   Pub,
   PubCrate,
@@ -184,7 +184,7 @@ pub enum SignatureVisibility {
 }
 
 /// Represents different types of block signatures.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum BlockSignature {
   /// A module declaration.
   Module {
