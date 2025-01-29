@@ -3,10 +3,7 @@ use std::io::Write;
 use rust_code_builder::*;
 
 mod helper {
-  use std::fs::{
-    self,
-    File,
-  };
+  use std::fs::{self, File};
   use std::path::Path;
 
   pub(super) fn prepare_output_dir(filename: &str) -> File {
@@ -26,7 +23,7 @@ mod helper {
 fn test_simple() {
   let mut file = helper::prepare_output_dir("simple_1");
 
-  let code_space = CodeSpace::new()
+  let code = CodeSpace::new()
     .insert_line("//! comment")
     .insert_line("")
     .insert_block(
@@ -36,7 +33,22 @@ fn test_simple() {
     )
     .to_string();
 
-  file
-    .write_all(code_space.as_bytes())
-    .expect("Failed to write to test file");
+  file.write_all(code.as_bytes()).expect("Failed to write to test file");
+}
+
+#[test]
+fn test_example() {
+  let mut file = helper::prepare_output_dir("example");
+
+  let code = CodeSpace::new()
+    .insert_line("let x = 42;")
+    .insert_new_line()
+    .insert_block(
+      Block::new()
+        .set_signature(Some(BlockSignature::Custom(String::from("if x > 0"))))
+        .insert_line("println!(\"Positive number!\");"),
+    )
+    .to_string();
+
+  file.write_all(code.as_bytes()).expect("Failed to write to test file");
 }

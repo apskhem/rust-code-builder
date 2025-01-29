@@ -25,12 +25,8 @@ let code = CodeSpace::new()
   .insert_new_line()
   .insert_block(
     Block::new()
-      .insert_line("if x > 0 {")
-      .insert_block(
-        Block::new()
-          .insert_line("println!(\"Positive number!\");")
-      )
-      .insert_line("}")
+      .set_signature(Some(BlockSignature::Custom(String::from("if x > 0"))))
+      .insert_line("println!(\"Positive number!\");"),
   );
 
 println!("{}", code);
@@ -43,6 +39,7 @@ let x = 42;
 if x > 0 {
   println!("Positive number!");
 }
+
 ```
 
 ## License
