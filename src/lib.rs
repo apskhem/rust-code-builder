@@ -9,7 +9,11 @@
 #[macro_use]
 extern crate alloc;
 
-use alloc::string::{String, ToString};
+use alloc::fmt;
+use alloc::string::{
+  String,
+  ToString,
+};
 use alloc::vec::Vec;
 
 /// Represents a structured space for managing code elements.
@@ -201,49 +205,40 @@ pub enum BlockSignature {
   Custom(String),
 }
 
-impl ToString for CodeSpace {
-  fn to_string(&self) -> String {
-    let mut result = String::new();
+impl fmt::Display for CodeSpace {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     let indent = self.indent_char.to_string().repeat(self.indent_depth);
-
     for code in &self.codes {
       match code {
-        Code::EmptyLine => result.push('\n'),
-        Code::Line(line) => {
-          result.push_str(&line);
-          result.push('\n');
-        }
-        Code::Block(block) => {
-          result.push_str(&block.to_string_with_indent(0, &indent));
-        }
+        Code::EmptyLine => writeln!(f)?,
+        Code::Line(line) => writeln!(f, "{}", line)?,
+        Code::Block(block) => write!(f, "{}", block.to_string_with_indent(0, &indent))?,
       }
     }
-
-    result
+    Ok(())
   }
 }
 
-impl ToString for Block {
-  fn to_string(&self) -> String {
-    self.to_string_with_indent(0, "  ") // Default to 2 spaces
+impl Default for CodeSpace {
+  fn default() -> Self {
+    Self::new()
   }
 }
 
-impl ToString for BlockSignature {
-  fn to_string(&self) -> String {
+impl fmt::Display for Block {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    write!(f, "{}", self.to_string_with_indent(0, "  ")) // Default to 2 spaces
+  }
+}
+
+impl fmt::Display for BlockSignature {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     match self {
       BlockSignature::Module { visibility, name } => {
-        let mut result = String::new();
-
         if let Some(visibility) = visibility {
-          result.push_str(&visibility.to_string());
-          result.push(' ');
+          write!(f, "{} ", visibility)?;
         }
-
-        result.push_str("mod ");
-        result.push_str(name);
-
-        result
+        write!(f, "mod {}", name)
       }
       BlockSignature::Function {
         visibility,
@@ -254,66 +249,56 @@ impl ToString for BlockSignature {
         return_type,
         where_clauses,
       } => {
-        let mut result = String::new();
-
         if let Some(visibility) = visibility {
-          result.push_str(&visibility.to_string());
-          result.push(' ');
+          write!(f, "{} ", visibility)?;
         }
-
         if *is_async {
-          result.push_str("async ");
+          write!(f, "async ")?;
         }
-
-        result.push_str("fn ");
-        result.push_str(name);
-
+        write!(f, "fn {}", name)?;
         if !generics.is_empty() {
-          result.push('<');
-          result.push_str(&generics.join(", "));
-          result.push('>');
+          write!(f, "<{}>", generics.join(", "))?;
         }
-
-        result.push('(');
-        result.push_str(
-          &params
+        write!(f, "(")?;
+        write!(
+          f,
+          "{}",
+          params
             .iter()
             .map(|(name, ty)| format!("{}: {}", name, ty))
             .collect::<Vec<_>>()
-            .join(", "),
-        );
-        result.push(')');
-
+            .join(", ")
+        )?;
+        write!(f, ")")?;
         if let Some(return_type) = return_type {
-          result.push_str(" -> ");
-          result.push_str(return_type);
+          write!(f, " -> {}", return_type)?;
         }
-
         if !where_clauses.is_empty() {
-          result.push_str("\nwhere ");
-          result.push_str(
-            &where_clauses
+          write!(
+            f,
+            "\nwhere {}",
+            where_clauses
               .iter()
               .map(|(param, constraint)| format!("{}: {}", param, constraint))
               .collect::<Vec<_>>()
-              .join(", "),
-          );
+              .join(", ")
+          )?;
         }
-
-        result
+        Ok(())
       }
-      BlockSignature::Custom(signature) => signature.clone(),
+      BlockSignature::Custom(signature) => write!(f, "{}", signature),
     }
   }
 }
 
-impl ToString for SignatureVisibility {
-  fn to_string(&self) -> String {
-    match self {
-      SignatureVisibility::Pub => "pub".to_string(),
-      SignatureVisibility::PubCrate => "pub(crate)".to_string(),
-      SignatureVisibility::PubSuper => "pub(super)".to_string(),
-      SignatureVisibility::PubSelf => "pub(self)".to_string(),
-    }
+impl fmt::Display for SignatureVisibility {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    let visibility = match self {
+      SignatureVisibility::Pub => "pub",
+      SignatureVisibility::PubCrate => "pub(crate)",
+      SignatureVisibility::PubSuper => "pub(super)",
+      SignatureVisibility::PubSelf => "pub(self)",
+    };
+    write!(f, "{}", visibility)
   }
 }

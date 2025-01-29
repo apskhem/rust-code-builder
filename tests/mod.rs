@@ -3,7 +3,10 @@ use std::io::Write;
 use rust_code_builder::*;
 
 mod helper {
-  use std::fs::{self, File};
+  use std::fs::{
+    self,
+    File,
+  };
   use std::path::Path;
 
   pub(super) fn prepare_output_dir(filename: &str) -> File {
